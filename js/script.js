@@ -126,17 +126,18 @@ const valid = (element) => {
 const validateName = () => {
     // Tests if user has filled the field and applies relevant accessibility and feedback styles.
     if (userName.value){
-        console.log('The user has successfuly entered a name in the input field');
         valid(userName);
     } else {
-        console.log('The user has failed to enter a name in the input field');
         invalid(userName);
     }
 }
 
 
 
-
+const email = document.querySelector('#email');
+email.addEventListener('input', () => {
+    validateEmail();
+})
 // VALIDATION FOR EMAIL INPUT
 const validateEmail = () => {
     // Selects the email input 
@@ -147,15 +148,9 @@ const validateEmail = () => {
 
     // Tests email input against regex and applies the relevant accessibility and feedback styles.
     if (!emailRegex.test(email.value)) {
-        console.log('The email input does meet the required specifications');
-        email.parentElement.classList.add('not-valid');
-        email.parentElement.classList.remove('valid');
-        email.parentElement.lastElementChild.style.display = "block";
+        invalid(email);
     } else {
-        console.log('The user has successfully input a valid email address');
-        email.parentElement.classList.remove('not-valid');
-        email.parentElement.classList.add('valid');
-        email.parentElement.lastElementChild.style.display = "none";
+        valid(email);
     }
 }
 
@@ -165,17 +160,14 @@ const validateEmail = () => {
 const validateRegistered = () => {
     // Tests if user has registered for event by evaluating total cost  and applies the relevant accessibility and feedback styles.
     if (totalCost > 0) {
-        console.log('The user has registered for at least one activity');
-        registerForActivities.classList.remove('not-valid');
-        registerForActivities.classList.add('valid');
-        registerForActivities.lastElementChild.style.display = "none";
+        valid(registerForActivities.firstElementChild);
     } else {
-        console.log('The user has not registered for any activities');
-        registerForActivities.classList.remove('valid');
-        registerForActivities.classList.add('not-valid');
-        registerForActivities.lastElementChild.style.display = "block";
+        invalid(registerForActivities.firstElementChild);
     }
 }
+
+// CC Card Extra Credit
+const creditCardInput = document.querySelector('#cc-num');
 
 // VALIDATION FOR CREDIT CARD INPUT
 const validateCreditCard = () => {
@@ -190,15 +182,9 @@ const validateCreditCard = () => {
 
             const creditRegex = /^\d{13,16}$/gm
             if (creditRegex.test(creditCardNum)) {
-                console.log('Yo this guy has valid CC details!');
-                creditCardInput.parentElement.classList.remove('not-valid');
-                creditCardInput.parentElement.classList.add('valid');
-                creditCardInput.parentElement.lastElementChild.style.display = "none";
+                valid(creditCardInput);
             } else {
-                console.log('Credit card scammer!!! Get them!');
-                creditCardInput.parentElement.classList.remove('valid');
-                creditCardInput.parentElement.classList.add('not-valid');
-                creditCardInput.parentElement.lastElementChild.style.display = "block";
+                invalid(creditCardInput);
             }
             creditCardInput.value = creditCardNum;
         
@@ -214,10 +200,13 @@ const validateCreditCard = () => {
             const cvvRegex = /^\d{3}$/gm
             console.log(cvvRegex.test(cvvNum));
     } else {
-        console.log('This person does not want to use a credit card');
         e.preventDefault();
     }
 }
+
+creditCardInput.addEventListener('input', () => {
+    validateCreditCard();
+})
 
 form.addEventListener('submit', (e) => {
     e.preventDefault();
