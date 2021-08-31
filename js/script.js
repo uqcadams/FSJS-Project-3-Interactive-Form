@@ -1,5 +1,8 @@
+// Selects the hidden "other job role" input field
 const otherJobRole = document.querySelector('#other-job-role');
+// Selects 'job role' select element
 const selectJobRole = document.querySelector('#title');
+
 const tShirtColor = document.querySelector('#color');
 const tShirtColorOptions = document.querySelectorAll('#color > option');
 const tShirtDesign = document.querySelector('#design');
@@ -20,14 +23,86 @@ userPaymentOptions[1].selected = "true";
 paypal.style.display = "none";
 bitcoin.style.display = "none";
 
+let validName = false;
+let validEmail = false;
+let validActivities = false;
+let validZip = false;
+let validCvv = false;
+let validCC = false;
+
 let totalCost;
 
-// Focus state by default on first text input field
-// Selects the name input 
-const userName = document.querySelector('#name');
-document.querySelector('#name').focus();
 
-// Job Role
+// HELPER FUNCTIONS
+// Applies styles and formatting if input is invalid
+const invalid = (element) => {
+    element.parentElement.classList.remove('valid');
+    element.parentElement.classList.add('not-valid');
+    element.parentElement.lastElementChild.style.display = "block";
+}
+// Applies styles and formatting if input is valid
+const valid = (element) => {
+    element.parentElement.classList.remove('not-valid');
+    element.parentElement.classList.add('valid');
+    element.parentElement.lastElementChild.style.display = "none";
+}
+
+
+
+// BASIC INFO SECTION
+
+// Selects name input box
+const userName = document.querySelector('#name');
+// Focus state by default on first text input field
+userName.focus();
+
+// VALIDATION FOR USER NAME INPUT
+const validateName = () => {
+    // Tests if user has filled the field and applies relevant accessibility and feedback styles.
+    if (userName.value){
+        valid(userName);
+        validName = true;
+    } else {
+        invalid(userName);
+        validName = false;
+    }
+}
+
+
+// Selects email input box
+const email = document.querySelector('#email');
+
+// VALIDATION FOR EMAIL INPUT
+const validateEmail = () => {
+    // Email address regex sourced from https://emailregex.com/
+    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
+    // Tests email input against regex and applies the relevant accessibility and feedback styles.
+    // This is explored in the attached README.md file.
+    if (!emailRegex.test(email.value)) {
+        invalid(email);
+        if (/["(),:;<.>@\[\]]/.test(email.value.charAt(0)) === true){
+            email.parentElement.lastElementChild.innerHTML = 'You have started your email address with a forbidden character.';
+        } else if(!email.value.includes('@')){
+            email.parentElement.lastElementChild.innerHTML = 'Remember to include an @ symbol while formatting your email to the "username@company.com" standard.';
+        } else if (!email.value.includes('.')) {
+            email.parentElement.lastElementChild.innerHTML = 'Remember to include your email domain extension! (eg: .com)';
+        } 
+        validEmail = false;
+    } else {
+        valid(email);
+        validEmail = true;
+    }
+}
+// Applies input event listener for realtime validation
+email.addEventListener('input', () => {
+    validateEmail();
+})
+
+
+
+
+// JOB ROLE - Displays input field when "other" is selected
 selectJobRole.addEventListener('input', (e) => {
     console.log(e.target.value);
     if (e.target.value === "other") {
@@ -36,6 +111,12 @@ selectJobRole.addEventListener('input', (e) => {
         otherJobRole.style.display = "none";
     }
 })
+
+
+
+
+
+// T-SHIRT INFO SECTION
 
 // Show and hide shirt design styles according to user input
 tShirtDesign.addEventListener('input', (e) => {
@@ -54,6 +135,11 @@ tShirtDesign.addEventListener('input', (e) => {
 });
 
 
+
+
+
+// REIGSTER FOR ACTIVITIES SECTION
+
 // CHECKBOX RESET
 // Clears checkboxes on load in case of browser caching 
 const clearChecks = () => {
@@ -65,6 +151,18 @@ const clearChecks = () => {
 }
 
 clearChecks();
+
+// VALIDATION FOR ACTIVITY REGISTRATION
+const validateRegistered = () => {
+    // Tests if user has registered for event by evaluating total cost  and applies the relevant accessibility and feedback styles.
+    if (totalCost > 0) {
+        valid(registerForActivities.firstElementChild);
+        validActivities = true;
+    } else {
+        invalid(registerForActivities.firstElementChild);
+        validActivities = false;
+    }
+}
 
 // REGISTER FOR ACTIVITIES EVENT LISTENER
 registerForActivities.addEventListener('input', (e) => {
@@ -92,7 +190,28 @@ registerForActivities.addEventListener('input', (e) => {
         }
     }
     activitiesCost.innerHTML = `Total: $${totalCost}`;
+    validateRegistered();
 })
+
+// Accessibility blur events
+for (let checkbox of checkBoxes) {
+    checkbox.addEventListener('focus', (e) => {
+        checkbox.parentElement.classList.add('focus');
+        console.log(e.target);
+    })
+    checkbox.addEventListener('blur', (e) => {
+        checkbox.parentElement.classList.remove('focus');
+        console.log(e.target);
+    })
+}
+
+
+
+
+
+
+// PAYMENT INFO SECTION
+
 
 // PAYMENT INFO EVENT LISTENER
 // Listens for input in the payment option select element
@@ -109,130 +228,115 @@ userPayment.addEventListener('input', (e) => {
 })
 
 
-const invalid = (element) => {
-    element.parentElement.classList.remove('valid');
-    element.parentElement.classList.add('not-valid');
-    element.parentElement.lastElementChild.style.display = "block";
-}
-
-const valid = (element) => {
-    element.parentElement.classList.remove('not-valid');
-    element.parentElement.classList.add('valid');
-    element.parentElement.lastElementChild.style.display = "none";
-}
-
-
-// VALIDATION FOR USER NAME INPUT
-const validateName = () => {
-    // Tests if user has filled the field and applies relevant accessibility and feedback styles.
-    if (userName.value){
-        valid(userName);
-    } else {
-        invalid(userName);
-    }
-}
-
-
-
-const email = document.querySelector('#email');
-email.addEventListener('input', () => {
-    validateEmail();
-})
-// VALIDATION FOR EMAIL INPUT
-const validateEmail = () => {
-    // Selects the email input 
-    const email = document.querySelector('#email');
-
-    // Email address regex sourced from https://emailregex.com/
-    const emailRegex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
-    // Tests email input against regex and applies the relevant accessibility and feedback styles.
-    if (!emailRegex.test(email.value)) {
-        invalid(email);
-    } else {
-        valid(email);
-    }
-}
-
-
-
-// VALIDATION FOR ACTIVITY REGISTRATION
-const validateRegistered = () => {
-    // Tests if user has registered for event by evaluating total cost  and applies the relevant accessibility and feedback styles.
-    if (totalCost > 0) {
-        valid(registerForActivities.firstElementChild);
-    } else {
-        invalid(registerForActivities.firstElementChild);
-    }
-}
-
-// CC Card Extra Credit
+// CC Input Selectors
 const creditCardInput = document.querySelector('#cc-num');
+const zipCodeInput = document.querySelector('#zip');
+const cvvInput = document.querySelector('#cvv');
 
-// VALIDATION FOR CREDIT CARD INPUT
-const validateCreditCard = () => {
-    if (userPayment.options[userPayment.selectedIndex].value === "credit-card") {
-        console.log('Hey, this guy wants to use a credit card!');
-
-        // Num Section
-            const creditCardInput = document.querySelector('#cc-num');
-            let creditCardNum = creditCardInput.value;
-            // Removes white space to allow for fair validation if user has added formatting
-            creditCardNum = creditCardNum.replace(/\s/g, "");
-
-            const creditRegex = /^\d{13,16}$/gm
-            if (creditRegex.test(creditCardNum)) {
-                valid(creditCardInput);
-            } else {
-                invalid(creditCardInput);
-            }
-            creditCardInput.value = creditCardNum;
-        
-        // Zip Section
-            const zipCodeInput = document.querySelector('#zip');
-            let zipCode = zipCodeInput.value;
-            const zipCodeRegex = /^\d{5}$/gm
-            console.log(zipCodeRegex.test(zipCode));
-
-        // CCV Section
-            const cvvInput = document.querySelector('#cvv');
-            let cvvNum = cvvInput.value;
-            const cvvRegex = /^\d{3}$/gm
-            console.log(cvvRegex.test(cvvNum));
+// CC Validation Functions
+// Zip Section
+const validateZip = () => {
+    const zipCodeRegex = /^\d{5}$/gm
+    if (!zipCodeRegex.test(zipCodeInput.value)) {
+        invalid(zipCodeInput);
+        validZip = false;
     } else {
-        e.preventDefault();
+        valid(zipCodeInput);
+        validZip = true;
     }
 }
+
+// CVV Section
+const validateCvv = () => {
+    const cvvRegex = /^\d{3}$/gm
+    if (!cvvRegex.test(cvvInput.value)) {
+        invalid(cvvInput);
+        validCvv = false;
+    } else {
+        valid(cvvInput);
+        validCvv = true;
+    }
+}
+
+const validateCC = () => {
+    // Saves the credit card input value to a variable for manipulation.
+    // Removes white space to allow for fair validation if user has added formatting
+    let creditCardNum = creditCardInput.value;
+    creditCardNum = creditCardNum.replace(/\s/g, "");
+
+    // Performs validation check on input
+    const creditRegex = /^\d{13,16}$/gm
+    if (creditRegex.test(creditCardNum)) {
+        valid(creditCardInput);
+        validCC = true;
+    } else {
+        invalid(creditCardInput);
+        validCC = false;
+    }
+
+    // Reformats viewable credit card input to match validation standards. 
+    creditCardInput.value = creditCardNum;
+}
+
+// Realtime Validation of CC input
+// Zip Section
+zipCodeInput.addEventListener('input', () => {
+    validateZip();
+})
+
+// CVV Section
+cvvInput.addEventListener('input', () => {
+    validateCvv();
+})
 
 creditCardInput.addEventListener('input', () => {
-    validateCreditCard();
+    validateCC();
 })
 
-form.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    // Validate name input
-    validateName();
-
-    // Validate email input
-    validateEmail();
-
-    // Validate "register for activities" input
-    validateRegistered();
-
-    // Validate credit card input
-    validateCreditCard();
-
-})
-
-// Accessibility blur events
-for (let checkbox of checkBoxes) {
-    checkbox.addEventListener('focus', (e) => {
-        checkbox.parentElement.classList.add('focus');
-        console.log(e.target);
-    })
-    checkbox.addEventListener('blur', (e) => {
-        checkbox.parentElement.classList.remove('focus');
-        console.log(e.target);
-    })
+// PAYMENT VALIDATION
+const validatePayment = () => {
+    let paymentOption = userPayment.options[userPayment.selectedIndex].value;
+    if (paymentOption === "credit-card") {
+        validateZip();
+        validateCvv();
+        validateCC();
+    }
+    if (paymentOption !== "credit-card") {
+        validPayment = true;
+    } else if (paymentOption === "credit-card" && validCC && validZip && validCvv) {
+        validPayment = true;
+    } else {
+        validPayment = false;
+    }
 }
+
+
+const validateForm = () => {
+        // Validate name input
+        validateName();
+
+        // Validate email input
+        validateEmail();
+    
+        // Validate "register for activities" input
+        validateRegistered();
+
+        // Validate payment options
+        validatePayment();    
+}
+
+
+// FORM SUBMISSION SECTION
+form.addEventListener('submit', (e) => {
+    // Re-runs validation checks on form
+    validateForm();
+
+    if (validName && validEmail && validActivities && validPayment) {
+        console.log('everything is valid');
+    } else {
+        e.preventDefault();
+        alert('Some input fields are invalid. Please review these before submitting.')
+    }
+    
+})
+
