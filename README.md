@@ -41,3 +41,7 @@ The process validates in the following manner:
     } else {
         valid(email);
     }
+
+    There is also realtime validation on the name and credit card content!
+
+    Signed - Chris Adams 01/09/2021
